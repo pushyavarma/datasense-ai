@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataSense AI — Instant Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #1e3a8a;
+  --navy: #0f2057;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --white: #ffffff;
+  --shadow-sm: 0 1px 3px rgba(15,32,87,0.08), 0 1px 2px rgba(15,32,87,0.06);
+  --shadow-md: 0 4px 16px rgba(15,32,87,0.10), 0 2px 6px rgba(15,32,87,0.06);
+  --shadow-lg: 0 8px 32px rgba(15,32,87,0.12), 0 4px 12px rgba(15,32,87,0.08);
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--slate-50);
+  color: var(--slate-800);
+  min-height: 100vh;
+  font-size: 15px;
+}
+
+/* ──── LANDING PAGE ──── */
+.landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+}
+
+/* Nav */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 68px;
+  background: white;
+  border-bottom: 1px solid var(--slate-200);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--blue-700);
+  text-decoration: none;
+}
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-800));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 17px;
+}
+.nav-cta {
+  background: var(--blue-600);
+  color: white;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--blue-700); }
+
+/* Hero */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, #bfdbfe55 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  color: var(--blue-700);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
+}
+.badge-dot { width: 6px; height: 6px; background: var(--blue-500); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.hero h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.15;
+  max-width: 720px;
+  margin-bottom: 1.25rem;
+}
+.hero h1 span { color: var(--blue-600); }
+.hero p {
+  font-size: 1.05rem;
+  color: var(--slate-500);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+.hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+.btn-primary {
+  background: var(--blue-600);
+  color: white;
+  border: none;
+  padding: 0.85rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover { background: var(--blue-700); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
+.btn-secondary {
+  background: white;
+  color: var(--blue-600);
+  border: 1.5px solid var(--blue-200);
+  padding: 0.85rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--blue-400); background: var(--blue-50); }
+
+/* Feature cards */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  max-width: 960px;
+  margin: 3.5rem auto 0;
+  padding: 0 2rem 4rem;
+}
+.feature-card {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.feature-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+.feature-card h3 { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.4rem; }
+.feature-card p { font-size: 0.83rem; color: var(--slate-500); line-height: 1.6; }
+
+/* Steps section */
+.steps-section {
+  background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-900) 100%);
+  padding: 4rem 2rem;
+  text-align: center;
+}
+.steps-section h2 { font-family: 'Sora', sans-serif; font-size: 1.7rem; font-weight: 700; color: white; margin-bottom: 0.6rem; }
+.steps-section > p { color: var(--blue-200); font-size: 0.95rem; margin-bottom: 3rem; }
+.steps { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; max-width: 200px; }
+.step-num { width: 44px; height: 44px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Sora', sans-serif; font-weight: 700; color: white; font-size: 1.1rem; }
+.step h4 { font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 600; color: white; }
+.step p { font-size: 0.8rem; color: var(--blue-200); text-align: center; line-height: 1.5; }
+.step-arrow { color: rgba(255,255,255,0.35); font-size: 1.2rem; align-self: center; margin-top: -1.5rem; }
+
+/* ──── APP PAGE ──── */
+.app-page { display: none; flex-direction: column; min-height: 100vh; }
+.app-page.active { display: flex; }
+
+.app-header {
+  background: white;
+  border-bottom: 1px solid var(--slate-200);
+  padding: 0 2rem;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.app-header-left { display: flex; align-items: center; gap: 12px; }
+.app-header h2 { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 600; color: var(--slate-700); }
+.file-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  color: var(--blue-700);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.header-actions { display: flex; gap: 0.75rem; align-items: center; }
+.btn-outline {
+  background: white;
+  color: var(--slate-600);
+  border: 1px solid var(--slate-300);
+  padding: 0.45rem 1rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--blue-400); color: var(--blue-600); }
+
+/* App body: left dash + right chat */
+.app-body {
+  display: grid;
+  grid-template-columns: 1fr 390px;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - 62px);
+}
+
+/* Dashboard panel */
+.dash-panel {
+  overflow-y: auto;
+  padding: 1.75rem;
+  background: var(--slate-50);
+}
+
+/* Upload inside app */
+.upload-area {
+  background: white;
+  border: 2px dashed var(--blue-300);
+  border-radius: var(--radius-xl);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  margin-bottom: 1.5rem;
+}
+.upload-area:hover, .upload-area.drag { background: var(--blue-50); border-color: var(--blue-500); }
+.upload-area.hidden { display: none; }
+.upload-icon-wrap { width: 72px; height: 72px; background: var(--blue-50); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 2rem; border: 1px solid var(--blue-100); }
+.upload-area h3 { font-family: 'Sora', sans-serif; font-size: 1.2rem; color: var(--slate-700); margin-bottom: 0.5rem; }
+.upload-area p { color: var(--slate-400); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5; }
+.upload-area .btn-primary { margin: 0 auto; display: inline-flex; }
+#fileInput { display: none; }
+
+/* Data file info */
+.data-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.data-info-icon { font-size: 1.6rem; }
+.data-info-name { font-weight: 600; color: var(--slate-700); font-size: 0.9rem; }
+.data-info-meta { font-size: 0.75rem; color: var(--slate-400); margin-top: 2px; }
+.btn-ghost { margin-left: auto; background: none; border: 1px solid var(--slate-300); color: var(--slate-500); padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.btn-ghost:hover { border-color: var(--blue-400); color: var(--blue-600); }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+.stat-tile {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.stat-tile-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-400); font-weight: 500; margin-bottom: 0.3rem; }
+.stat-tile-value { font-family: 'Sora', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--blue-700); }
+.stat-tile-sub { font-size: 0.73rem; color: var(--slate-400); margin-top: 3px; }
+
+/* Charts */
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.chart-tile {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-sm);
+}
+.chart-tile-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--slate-400);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-tile-title span { color: var(--blue-500); }
+.chart-wrap { position: relative; height: 210px; }
+
+/* Table */
+.table-tile {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.table-scroll { overflow-x: auto; max-height: 280px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+thead th {
+  background: var(--slate-50);
+  color: var(--slate-500);
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  font-weight: 500;
+  border-bottom: 1px solid var(--slate-200);
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+tbody td { padding: 0.5rem 0.85rem; border-bottom: 1px solid var(--slate-100); color: var(--slate-700); white-space: nowrap; }
+tbody tr:hover td { background: var(--blue-50); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ──── CHAT PANEL ──── */
+.chat-panel {
+  background: white;
+  border-left: 1px solid var(--slate-200);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-top {
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--slate-200);
+  background: white;
+}
+.ai-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--blue-600);
+  font-weight: 600;
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ai-dot { width: 6px; height: 6px; background: var(--blue-500); border-radius: 50%; animation: pulse 2s infinite; }
+.chat-top h3 { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--slate-700); }
+.chat-top p { font-size: 0.77rem; color: var(--slate-400); margin-top: 2px; }
+
+/* API key box */
+.api-box {
+  margin: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  font-size: 0.8rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+.api-box strong { display: block; margin-bottom: 4px; color: #78350f; }
+.api-box input {
+  width: 100%;
+  background: white;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--slate-700);
+  margin-top: 0.5rem;
+  font-family: monospace;
+  outline: none;
+}
+.api-box input:focus { border-color: var(--blue-400); }
+.api-save-btn {
+  margin-top: 0.5rem;
+  background: var(--blue-600);
+  color: white;
+  border: none;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Messages */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.empty-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 0.75rem;
+  color: var(--slate-300);
+  text-align: center;
+  padding: 1.5rem;
+}
+.empty-chat-icon { font-size: 2.5rem; }
+.empty-chat p { font-size: 0.85rem; color: var(--slate-400); }
+
+.msg { display: flex; flex-direction: column; max-width: 92%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.ai { align-self: flex-start; align-items: flex-start; }
+.bubble {
+  padding: 0.72rem 1rem;
+  border-radius: 14px;
+  font-size: 0.83rem;
+  line-height: 1.6;
+}
+.msg.user .bubble {
+  background: var(--blue-600);
+  color: white;
+  border-radius: 14px 14px 4px 14px;
+}
+.msg.ai .bubble {
+  background: var(--slate-50);
+  color: var(--slate-700);
+  border: 1px solid var(--slate-200);
+  border-radius: 14px 14px 14px 4px;
+}
+.msg-time { font-size: 0.64rem; color: var(--slate-300); margin-top: 3px; }
+
+/* Typing */
+.typing-dots { display: flex; gap: 5px; padding: 4px 2px; }
+.typing-dots span { width: 7px; height: 7px; background: var(--blue-300); border-radius: 50%; animation: bounce 1.4s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-6px);} }
+
+/* Suggestions */
+.suggestions {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--slate-100);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.sugg-btn {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  color: var(--blue-600);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sugg-btn:hover { background: var(--blue-100); border-color: var(--blue-400); }
+
+/* Input area */
+.chat-input-wrap {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--slate-200);
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+.chat-input-wrap textarea {
+  flex: 1;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  color: var(--slate-700);
+  font-size: 0.83rem;
+  resize: none;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  height: 40px;
+  max-height: 110px;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+.chat-input-wrap textarea:focus { border-color: var(--blue-400); background: white; }
+.chat-input-wrap textarea:disabled { opacity: 0.5; }
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--blue-600);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+}
+.send-btn:hover:not(:disabled) { background: var(--blue-700); }
+.send-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+
+/* Footer */
+.footer {
+  background: var(--navy);
+  color: var(--blue-200);
+  text-align: center;
+  padding: 1.5rem 2rem;
+  font-size: 0.8rem;
+}
+.footer strong { color: white; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: var(--blue-200); border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-body { grid-template-columns: 1fr; }
+  .chat-panel { height: 55vh; border-left: none; border-top: 1px solid var(--slate-200); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING PAGE ═══ -->
+<div class="landing" id="landingPage">
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <div class="logo-mark">📊</div>
+      DataSense AI
+    </a>
+    <button class="nav-cta" onclick="goToApp()">Launch App →</button>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge"><span class="badge-dot"></span> No code · No signup · 100% private</div>
+    <h1>Turn Any <span>Excel File</span> Into a Live Analytics Dashboard</h1>
+    <p>Upload your spreadsheet and instantly get charts, key stats, and an AI assistant that answers questions about your data in plain English.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="goToApp()">
+        <span>📂</span> Upload Your File Now
+      </button>
+      <button class="btn-secondary" onclick="document.getElementById('howSection').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    </div>
+  </section>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Instant Charts</h3>
+      <p>Bar charts, line trends, donut distributions — generated automatically from your data the moment you upload.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>AI Chat Assistant</h3>
+      <p>Ask questions like "what's the total revenue?" or "find the top 5 products" and get instant, accurate answers.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>100% Private</h3>
+      <p>Your file is processed entirely in your browser. It never gets uploaded to any server. Your data stays yours.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📁</div>
+      <h3>Any Excel File</h3>
+      <p>Works with .xlsx, .xls, and .csv files. Sales data, inventory, finances, surveys — anything with rows and columns.</p>
+    </div>
+  </div>
+
+  <section class="steps-section" id="howSection">
+    <h2>Up and running in 3 steps</h2>
+    <p>No account needed. No installation. Just open and go.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Upload your file</h4>
+        <p>Drag & drop or click to browse your Excel or CSV file</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Instant dashboard</h4>
+        <p>Charts, stats, and a data table appear automatically</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Chat with your data</h4>
+        <p>Ask the AI anything about your data in plain English</p>
+      </div>
+    </div>
+    <br><br>
+    <button class="btn-primary" onclick="goToApp()" style="margin:0 auto;">Get Started Free →</button>
+  </section>
+
+  <footer class="footer">
+    <strong>DataSense AI</strong> — Built with ❤️ · Your data never leaves your browser
+  </footer>
+</div>
+
+<!-- ═══ APP PAGE ═══ -->
+<div class="app-page" id="appPage">
+  <header class="app-header">
+    <div class="app-header-left">
+      <a href="#" class="nav-logo" onclick="goToLanding(); return false;" style="text-decoration:none;">
+        <div class="logo-mark" style="width:28px;height:28px;font-size:13px;">📊</div>
+        DataSense AI
+      </a>
+      <div class="file-badge" id="headerFileBadge" style="display:none">📗 <span id="headerFileName">No file</span></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" onclick="resetFile()">↩ Change File</button>
+      <button class="btn-outline" onclick="goToLanding()">← Home</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- LEFT: Dashboard -->
+    <div class="dash-panel" id="dashPanel">
+      <!-- Upload zone -->
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon-wrap">📂</div>
+        <h3>Drop your spreadsheet here</h3>
+        <p>Supports Excel (.xlsx, .xls) and CSV files.<br>Your data is processed locally and never uploaded.</p>
+        <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+          <span>📁</span> Choose File
+        </button>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFile(event)">
+      </div>
+
+      <!-- Content (shown after file loaded) -->
+      <div id="dashContent" style="display:none">
+        <div class="data-info-bar">
+          <div class="data-info-icon">📗</div>
+          <div>
+            <div class="data-info-name" id="infoName">file.xlsx</div>
+            <div class="data-info-meta" id="infoMeta">Loading...</div>
+          </div>
+          <button class="btn-ghost" onclick="resetFile()">Change File</button>
+        </div>
+        <div class="stats-row" id="statsRow"></div>
+        <div class="charts-grid" id="chartsGrid"></div>
+        <div class="table-tile" style="margin-top:1rem">
+          <div class="chart-tile-title"><span>📋</span> Data Preview</div>
+          <div class="table-scroll" id="tableContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Chat -->
+    <div class="chat-panel">
+      <div class="chat-top">
+        <div class="ai-status"><span class="ai-dot"></span> AI Assistant</div>
+        <h3>Ask About Your Data</h3>
+        <p>Ask anything in plain English — no tech knowledge needed</p>
+      </div>
+
+      <div class="api-box" id="apiBox" style="display:none">
+        <strong>🔑 One-time setup: Enter your AI key</strong>
+        Paste your Anthropic API key below. It's saved in your browser and never shared.
+        <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue-600);font-size:0.75rem;display:block;margin-top:3px;">Get a free key at console.anthropic.com →</a>
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." />
+        <button class="api-save-btn" onclick="saveApiKey()">Save & Enable AI Chat</button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-chat" id="emptyChat">
+          <div class="empty-chat-icon">💬</div>
+          <p>Upload a file to start chatting with your data</p>
+        </div>
+      </div>
+
+      <div class="suggestions" id="suggestions" style="display:none">
+        <button class="sugg-btn" onclick="suggest(this)">Summarize the data</button>
+        <button class="sugg-btn" onclick="suggest(this)">What are the top values?</button>
+        <button class="sugg-btn" onclick="suggest(this)">Find key trends</button>
+        <button class="sugg-btn" onclick="suggest(this)">Any anomalies?</button>
+        <button class="sugg-btn" onclick="suggest(this)">Calculate averages</button>
+      </div>
+
+      <div class="chat-input-wrap">
+        <textarea id="chatInput" placeholder="e.g. What is the total sales? Which region performed best?" disabled
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+          oninput="this.style.height='40px';this.style.height=Math.min(this.scrollHeight,110)+'px'"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()" disabled title="Send">
+          ➤
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ───
+let dataRows = null;
+let dataContext = '';
+let apiKey = localStorage.getItem('ds_api_key') || '';
+const activeCharts = [];
+
+// ─── Navigation ───
+function goToApp() {
+  document.getElementById('landingPage').style.display = 'none';
+  document.getElementById('appPage').classList.add('active');
+  if (!apiKey) document.getElementById('apiBox').style.display = 'block';
+}
+function goToLanding() {
+  document.getElementById('landingPage').style.display = 'flex';
+  document.getElementById('appPage').classList.remove('active');
+}
+
+// ─── API Key ───
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-...)'); return; }
+  apiKey = val;
+  localStorage.setItem('ds_api_key', val);
+  document.getElementById('apiBox').style.display = 'none';
+  addAiMsg('API key saved! ✅ Now upload a file and I\'ll help you analyze it.');
+}
+
+// ─── File handling ───
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault(); uploadArea.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) processFile(f);
+});
+
+function handleFile(e) { if (e.target.files[0]) processFile(e.target.files[0]); }
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      if (!json.length) { alert('No data found in this file.'); return; }
+      dataRows = json;
+      buildDashboard(json, file.name);
+    } catch { alert('Could not read this file. Please use .xlsx, .xls, or .csv'); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function resetFile() {
+  dataRows = null; dataContext = '';
+  activeCharts.forEach(c => c.destroy()); activeCharts.length = 0;
+  document.getElementById('uploadArea').classList.remove('hidden');
+  document.getElementById('dashContent').style.display = 'none';
+  document.getElementById('chatInput').disabled = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('suggestions').style.display = 'none';
+  document.getElementById('emptyChat').style.display = 'flex';
+  document.getElementById('headerFileBadge').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  clearMsgs();
+}
+
+// ─── Dashboard builder ───
+function buildDashboard(data, fileName) {
+  activeCharts.forEach(c => c.destroy()); activeCharts.length = 0;
+
+  document.getElementById('uploadArea').classList.add('hidden');
+  document.getElementById('dashContent').style.display = 'block';
+  document.getElementById('headerFileBadge').style.display = 'flex';
+  document.getElementById('headerFileName').textContent = fileName;
+  document.getElementById('infoName').textContent = fileName;
+
+  const cols = Object.keys(data[0]);
+  const numCols = cols.filter(c => data.some(r => r[c] !== '' && !isNaN(+r[c])));
+  const textCols = cols.filter(c => !numCols.includes(c));
+
+  document.getElementById('infoMeta').textContent = `${data.length.toLocaleString()} rows · ${cols.length} columns · ${numCols.length} numeric · ${textCols.length} text`;
+
+  // Stats
+  const statsRow = document.getElementById('statsRow');
+  statsRow.innerHTML = '';
+  const addStat = (label, val, sub='') => {
+    statsRow.innerHTML += `<div class="stat-tile"><div class="stat-tile-label">${label}</div><div class="stat-tile-value">${val}</div>${sub?`<div class="stat-tile-sub">${sub}</div>`:''}</div>`;
+  };
+  addStat('Total Rows', data.length.toLocaleString());
+  addStat('Columns', cols.length, cols.slice(0,3).join(', ')+(cols.length>3?'…':''));
+  if (numCols[0]) {
+    const vals = data.map(r=>+r[numCols[0]]).filter(v=>!isNaN(v)&&v!==0);
+    const sum = vals.reduce((a,b)=>a+b,0);
+    addStat(numCols[0]+' Total', sum>1e6?(sum/1e6).toFixed(2)+'M':sum>1e3?(sum/1e3).toFixed(1)+'K':Math.round(sum).toLocaleString());
+    addStat(numCols[0]+' Avg', (sum/vals.length).toFixed(2));
+  }
+  if (numCols[1]) {
+    const vals2 = data.map(r=>+r[numCols[1]]).filter(v=>!isNaN(v));
+    addStat(numCols[1]+' Max', Math.max(...vals2).toLocaleString());
+  }
+
+  // Chart palette - blue tones
+  const BLUE = ['#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8','#1e40af','#7dd3fc','#bfdbfe'];
+
+  const grid = document.getElementById('chartsGrid');
+  grid.innerHTML = '';
+
+  function addChart(title, id) {
+    const card = document.createElement('div');
+    card.className = 'chart-tile';
+    card.innerHTML = `<div class="chart-tile-title"><span>◆</span>${title}</div><div class="chart-wrap"><canvas id="${id}"></canvas></div>`;
+    grid.appendChild(card);
+  }
+  const baseOpts = (xColor='#94a3b8', gridColor='#f1f5f9') => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: xColor, font: { size: 10 } }, grid: { color: gridColor } },
+      y: { ticks: { color: xColor }, grid: { color: gridColor } }
+    }
+  });
+
+  // Chart 1: Bar
+  if (numCols[0]) {
+    const nc = numCols[0], lc = textCols[0]||cols[0];
+    const top = data.slice(0,16);
+    addChart(`${nc} by ${lc}`, 'c1');
+    const c = document.getElementById('c1').getContext('2d');
+    activeCharts.push(new Chart(c, {
+      type: 'bar',
+      data: { labels: top.map(r=>String(r[lc]).slice(0,14)), datasets: [{ data: top.map(r=>+r[nc]||0), backgroundColor: BLUE[0]+'cc', borderColor: BLUE[0], borderWidth: 1, borderRadius: 6 }] },
+      options: baseOpts()
+    }));
+  }
+
+  // Chart 2: Line trend
+  if (numCols[0]) {
+    const nc = numCols[Math.min(1,numCols.length-1)];
+    const pts = data.slice(0,30).map(r=>+r[nc]||0);
+    addChart(`${nc} Trend`, 'c2');
+    const c = document.getElementById('c2').getContext('2d');
+    activeCharts.push(new Chart(c, {
+      type: 'line',
+      data: { labels: pts.map((_,i)=>'#'+(i+1)), datasets: [{ data: pts, borderColor: BLUE[1], backgroundColor: BLUE[1]+'18', tension: 0.4, pointRadius: 3, fill: true }] },
+      options: baseOpts('#94a3b8','#f1f5f9')
+    }));
+  }
+
+  // Chart 3: Doughnut
+  if (textCols[0]) {
+    const col = textCols[0];
+    const counts = {};
+    data.forEach(r => { const v = String(r[col]).trim(); if(v) counts[v]=(counts[v]||0)+1; });
+    const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,7);
+    addChart(`Distribution: ${col}`, 'c3');
+    const c = document.getElementById('c3').getContext('2d');
+    activeCharts.push(new Chart(c, {
+      type: 'doughnut',
+      data: { labels: top.map(([k])=>k), datasets: [{ data: top.map(([,v])=>v), backgroundColor: BLUE, borderColor: '#fff', borderWidth: 2 }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins: { legend: { position:'right', labels: { color:'#64748b', font:{size:11}, boxWidth:12 } } } }
+    }));
+  }
+
+  // Chart 4: Horizontal bar top 10
+  if (numCols.length > 1 && textCols[0]) {
+    const nc = numCols[1], lc = textCols[0];
+    const sorted = [...data].sort((a,b)=>(+b[nc]||0)-(+a[nc]||0)).slice(0,10);
+    addChart(`Top 10: ${nc}`, 'c4');
+    const c = document.getElementById('c4').getContext('2d');
+    activeCharts.push(new Chart(c, {
+      type: 'bar',
+      data: { labels: sorted.map(r=>String(r[lc]).slice(0,18)), datasets: [{ data: sorted.map(r=>+r[nc]||0), backgroundColor: BLUE[2]+'cc', borderColor: BLUE[2], borderWidth: 1, borderRadius: 6 }] },
+      options: { ...baseOpts(), indexAxis: 'y' }
+    }));
+  }
+
+  // Table
+  const preview = data.slice(0,60);
+  let html = '<table><thead><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+  preview.forEach(row => { html += '<tr>'+cols.map(c=>`<td>${row[c]}</td>`).join('')+'</tr>'; });
+  html += '</tbody></table>';
+  if (data.length>60) html += `<p style="color:var(--slate-400);font-size:0.72rem;padding:0.5rem 0.85rem">Showing first 60 of ${data.length.toLocaleString()} rows</p>`;
+  document.getElementById('tableContainer').innerHTML = html;
+
+  // AI context
+  const sample = data.slice(0,60);
+  dataContext = `File: "${fileName}"
+Columns: ${cols.join(', ')}
+Rows: ${data.length}
+Numeric columns: ${numCols.join(', ')||'none'}
+Text columns: ${textCols.join(', ')||'none'}
+${numCols.map(col=>{
+  const vs=data.map(r=>+r[col]).filter(v=>!isNaN(v));
+  const sum=vs.reduce((a,b)=>a+b,0);
+  return `${col}: min=${Math.min(...vs).toFixed(2)}, max=${Math.max(...vs).toFixed(2)}, avg=${(sum/vs.length).toFixed(2)}, total=${sum.toFixed(2)}`;
+}).join('\n')}
+
+Sample rows (first 60):
+${JSON.stringify(sample)}`;
+
+  // Enable chat
+  document.getElementById('chatInput').disabled = false;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('suggestions').style.display = 'flex';
+  clearMsgs();
+  addAiMsg(`✅ **"${fileName}"** loaded successfully! I can see **${data.length.toLocaleString()} rows** and **${cols.length} columns** — ${cols.join(', ')}.\n\nAsk me anything about your data!`);
+}
+
+// ─── Chat ───
+function clearMsgs() {
+  const el = document.getElementById('chatMessages');
+  el.innerHTML = '';
+  if (!dataRows) el.innerHTML = '<div class="empty-chat" id="emptyChat"><div class="empty-chat-icon">💬</div><p>Upload a file to start chatting with your data</p></div>';
+}
+function addAiMsg(text) {
+  const el = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+  const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const fmt = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  d.innerHTML = `<div class="bubble">${fmt}</div><div class="msg-time">${t}</div>`;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+function addUserMsg(text) {
+  const el = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML = `<div class="bubble">${text}</div><div class="msg-time">${t}</div>`;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+function addTyping() {
+  const el = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'msg ai'; d.id = 'typingDot';
+  d.innerHTML = '<div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+function removeTyping() { const d = document.getElementById('typingDot'); if(d) d.remove(); }
+
+function suggest(btn) { document.getElementById('chatInput').value = btn.textContent; sendMsg(); }
+
+async function sendMsg() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text || !dataRows) return;
+  if (!apiKey) {
+    document.getElementById('apiBox').style.display = 'block';
+    document.getElementById('apiBox').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  inp.value = ''; inp.style.height = '40px';
+  document.getElementById('sendBtn').disabled = true;
+  addUserMsg(text);
+  addTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: `You are a friendly, expert data analyst helping a non-technical user understand their spreadsheet data.
+Here is their dataset:
+${dataContext}
+
+Answer clearly and simply. Use numbers from the data. Format answers readably. Keep responses under 250 words unless a detailed breakdown is genuinely needed. Use plain language — no jargon.`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    const dat = await res.json();
+    removeTyping();
+    if (dat.error) addAiMsg('⚠️ ' + (dat.error.message||'Something went wrong. Check your API key.'));
+    else addAiMsg(dat.content[0].text);
+  } catch {
+    removeTyping();
+    addAiMsg('Connection error. Please check your internet and API key.');
+  }
+  document.getElementById('sendBtn').disabled = false;
+  inp.focus();
+}
+</script>
+</body>
+</html>
